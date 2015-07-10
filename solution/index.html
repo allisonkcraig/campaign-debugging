@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Solution</title>
+<link rel="stylesheet" href="http://fellowship.hackbrightacademy.com/tools/homework.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="solution">
+<h1 class="title">Solution</h1>
+
+<p>There are a bunch of bugs; as a hint, here's a copy of the original
+file that just notes where the bugs are, but doesn't fix them.</p>
+<pre class="literal-block">
+# BUG: make sure you're importing the right thing
+
+import argv
+from random import choice
+
+
+def make_chains(corpus):
+    &quot;&quot;&quot;Takes input text as string; returns dictionary of markov chains.&quot;&quot;&quot;
+
+    chains = {}
+
+    words = corpus.split()
+
+    # BUG: index error
+    for i in range(len(words) - 1):
+        key = (words[i], words[i + 1])
+        value = words[i + 2]
+
+        if key not in chains:
+            chains[key] = []
+
+        # BUG: add is not the correct method for this data type
+        chains[key].add(value)
+
+    return chains
+
+
+def make_text(chains):
+    &quot;&quot;&quot;Takes dictionary of markov chains; returns random text.&quot;&quot;&quot;
+    chain_keys = chains.keys()
+    key = chain_keys[0]
+    words = [key[0], key[1]]
+    count = 0
+
+    # BUG: count will never be greater than 140
+    while key in chains and count &gt; 140:
+
+        word = choice(chains[key])
+        count += len(word)
+        words.append(word)
+        key = (key[1], word)
+
+    return &quot; &quot;.join(words)
+
+
+input_path = sys.argv[1]
+input_text = open(input_path).read()
+
+# BUG: calling the wrong input variable
+chains = make_chains(input_path)
+
+random_text = make_text(chains)
+
+print random_text
+
+</pre>
+<div class="section" id="solution-code">
+<h1>Solution Code</h1>
+<pre class="literal-block">
+import sys
+from random import choice
+
+
+def make_chains(corpus):
+    &quot;&quot;&quot;Takes input text as string; returns dictionary of markov chains.&quot;&quot;&quot;
+
+    chains = {}
+
+    words = corpus.split()
+
+    for i in range(len(words) - 2):
+        key = (words[i], words[i + 1])
+        value = words[i + 2]
+
+        if key not in chains:
+            chains[key] = []
+
+        chains[key].append(value)
+
+    return chains
+
+
+def make_text(chains):
+    &quot;&quot;&quot;Takes dictionary of markov chains; returns random text.&quot;&quot;&quot;
+    key = choice(chains.keys())
+    words = [key[0], key[1]]
+    count = 0
+
+    # Keep doing this until we reach the end or until we go too
+    # long for a Twitter message
+
+    while key in chains and count &lt; 140:
+
+        word = choice(chains[key])
+        count += len(word)
+        words.append(word)
+        key = (key[1], word)
+
+    return &quot; &quot;.join(words)
+
+
+input_path = sys.argv[1]
+input_text = open(input_path).read()
+
+chains = make_chains(input_text)
+
+random_text = make_text(chains)
+
+print random_text
+
+</pre>
+</div>
+<div class="section" id="notes">
+<h1>Notes</h1>
+<ul class="simple">
+<li>print debugging is a great way to start with this.</li>
+</ul>
+</div>
+</div>
+</body>
+</html>
